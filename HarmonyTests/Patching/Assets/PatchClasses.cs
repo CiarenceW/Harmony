@@ -1096,6 +1096,75 @@ namespace HarmonyLibTests.Assets
 		public static void Postfix(bool __runOriginal) => bool2 = __runOriginal;
 	}
 
+	[HarmonyPatch(typeof(Class25), nameof(Method25))]
+	public class Class25
+	{
+		public static int? someInt;
+		public static int? intLocalVariable0;
+
+		public static void Method25()
+		{
+			int i = 1;
+			int i2 = i + 2;
+
+			someInt = i2;
+		}
+
+		public static void Postfix(int __localVariable_0) => intLocalVariable0 = __localVariable_0;
+	}
+
+	[HarmonyPatch(typeof(Class25b), nameof(Method25b))]
+	public class Class25b
+	{
+		public static void Method25b()
+		{
+		}
+
+		public static void Postfix(int __localVariable_0)
+		{
+		}
+	}
+
+	[HarmonyPatch(typeof(Class25c), nameof(Method25c))]
+	public class Class25c
+	{
+		public static void Method25c()
+		{
+			object variable0 = new object();
+			object variable1 = new object();
+		}
+
+		public static void Postfix(object __localVariable_2)
+		{
+		}
+	}
+
+	[HarmonyPatch(typeof(Class25d), nameof(Method25d))]
+	public class Class25d
+	{
+		public static void Method25d()
+		{
+			float variable0 = 123f;
+			variable0 *= 2f;
+		}
+
+		public static void Postfix(int __localVariable_0)
+		{
+		}
+	}
+
+	[HarmonyPatch(typeof(Class25e), nameof(Method25e))]
+	public class Class25e
+	{
+		public static void Method25e()
+		{
+		}
+
+		public static void Postfix(int __localVariable_test)
+		{
+		}
+	}
+
 	public class InjectDelegateBaseClass
 	{
 		public string pre;

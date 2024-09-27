@@ -1,6 +1,8 @@
 using HarmonyLib;
 using HarmonyLibTests.Assets;
 using NUnit.Framework;
+using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace HarmonyLibTests.Patching
@@ -499,6 +501,79 @@ namespace HarmonyLibTests.Patching
 
 			Assert.NotNull(Class24.bool2, "bool2");
 			Assert.IsTrue(Class24.bool2.Value, "bool2.Value");
+		}
+
+		[Test]
+		public void Test_Class25()
+		{
+			var instance = new Harmony("test");
+			Assert.NotNull(instance, "instance");
+
+			var processor = new PatchClassProcessor(instance, typeof(Class25));
+			Assert.NotNull(processor, "processor");
+			_ = processor.Patch();
+
+			Class25.someInt = null;
+			Class25.intLocalVariable0 = null;
+			Class25.Method25();
+
+			Assert.NotNull(Class25.someInt, "someInt1");
+			Assert.AreEqual(Class25.someInt, 3);
+
+			Assert.NotNull(Class25.intLocalVariable0, "intLocalVariable0");
+			Assert.AreEqual(Class25.intLocalVariable0, 1);
+		}
+
+		[Test]
+		public void Test_Class25b()
+		{
+			var instance = new Harmony("test");
+			Assert.NotNull(instance, "instance");
+
+			var processor = new PatchClassProcessor(instance, typeof(Class25b));
+			Assert.NotNull(processor, "processor");
+
+			HarmonyException ex = Assert.Throws<HarmonyException>(() => processor.Patch());
+			Assert.That(ex.InnerException.Message, Is.EqualTo($"{nameof(Class25b.Method25b)} does not have any local variables"));
+		}
+
+		[Test]
+		public void Test_Class25c()
+		{
+			var instance = new Harmony("test");
+			Assert.NotNull(instance, "instance");
+
+			var processor = new PatchClassProcessor(instance, typeof(Class25c));
+			Assert.NotNull(processor, "processor");
+
+			HarmonyException ex = Assert.Throws<HarmonyException>(() => processor.Patch());
+			Assert.That(ex.InnerException.Message, Is.EqualTo($"{nameof(Class25c.Method25c)} does not have a local variable at index 2"));
+		}
+
+		[Test]
+		public void Test_Class25d()
+		{
+			var instance = new Harmony("test");
+			Assert.NotNull(instance, "instance");
+
+			var processor = new PatchClassProcessor(instance, typeof(Class25d));
+			Assert.NotNull(processor, "processor");
+
+			HarmonyException ex = Assert.Throws<HarmonyException>(() => processor.Patch());
+			Assert.That(ex.InnerException.Message, Is.EqualTo($"__localVariable_0 has wrong type, is: {typeof(Int32)}, but according to local variable type, should be: {typeof(float)}"));
+		}
+
+		[Test]
+		public void Test_Class25e()
+		{
+			var instance = new Harmony("test");
+			Assert.NotNull(instance, "instance");
+
+			var processor = new PatchClassProcessor(instance, typeof(Class25e));
+			Assert.NotNull(processor, "processor");
+
+			HarmonyException ex = Assert.Throws<HarmonyException>(() => processor.Patch());
+			Assert.That(ex.InnerException.Message, Is.EqualTo($"Parameter __localVariable_test does not contain a valid local variable index number"));
 		}
 	}
 }
