@@ -17,6 +17,7 @@ namespace HarmonyLib
 		const string RESULT_VAR = "__result";
 		const string RESULT_REF_VAR = "__resultRef";
 		const string STATE_VAR = "__state";
+		const string LOCAL_VARIABLE_PREFIX = "__localVariable_";
 		const string EXCEPTION_VAR = "__exception";
 		const string RUN_ORIGINAL_VAR = "__runOriginal";
 		const string PARAM_INDEX_PREFIX = "__";
@@ -653,6 +654,41 @@ namespace HarmonyLib
 				{
 					var ldlocCode = patchParam.ParameterType.IsByRef ? OpCodes.Ldloca : OpCodes.Ldloc;
 					emitter.Emit(ldlocCode, localBuilder);
+					continue;
+				}
+
+				// patched method local variable accessor
+				if (patchParamName.StartsWith(LOCAL_VARIABLE_PREFIX))
+				{
+					var localVariableIndexString = patchParamName.Substring(LOCAL_VARIABLE_PREFIX.Length);
+
+					if (int.TryParse(localVariableIndexString, out var localVariableIndexNum))
+					{
+						var originalMethodLocalVars = original.GetMethodBody().LocalVariables;
+
+						// check if target method has any local variable
+						if (originalMethodLocalVars.Count == 0)
+						{
+							throw new Exception($"{original.Name} does not have any local variables");
+						}
+
+						// check if the local variable index isn't higher than the targeted method's number of local variables
+						if (localVariableIndexNum > originalMethodLocalVars.Count - 1)
+						{
+							throw new Exception($"{original.Name} does not have a local variable at index {localVariableIndexNum}");
+						}
+
+						if (patchParam.ParameterType != originalMethodLocalVars[localVariableIndexNum].LocalType)
+						{
+							throw new Exception($"{patchParamName} has wrong type, is: {patchParam.ParameterType}, but according to local variable type, should be: {originalMethodLocalVars[localVariableIndexNum].LocalType}");
+						}
+
+						emitter.Emit(patchParam.ParameterType.IsByRef ? OpCodes.Ldloca : OpCodes.Ldloc, localVariableIndexNum);
+					}
+					else
+					{
+						throw new Exception($"Parameter {patchParam.Name} does not contain a valid local variable index number");
+					}
 					continue;
 				}
 
